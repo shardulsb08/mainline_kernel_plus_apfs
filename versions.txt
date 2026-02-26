@@ -1,0 +1,28 @@
+Linux Kernel last commit:
+commit f4d0ec0aa20d49f09dc01d82894ce80d72de0560
+Merge: d9d32e5bd5a4 4a2d046e4b13
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed Feb 25 16:39:25 2026 -0800
+
+    Merge tag 'erofs-for-7.0-rc2-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs
+
+    Pull erofs fixes from Gao Xiang:
+
+     - Do not share the page cache if the real @aops differs
+
+     - Fix the incomplete condition for interlaced plain extents
+
+     - Get rid of more unnecessary #ifdefs
+
+    * tag 'erofs-for-7.0-rc2-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs:
+      erofs: fix interlaced plain identification for encoded extents
+      erofs: remove more unnecessary #ifdefs
+      erofs: allow sharing page cache with the same aops only
+
+Version:
+~v7.0-rc1
+
+apfs:
+Last commit:
+https://github.com/linux-apfs/linux-apfs-rw/commit/1db8a6d92a4f2ef6f2a3f575863e4619e9912298
+Release ~0.3.18
