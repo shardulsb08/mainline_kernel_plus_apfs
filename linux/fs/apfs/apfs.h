@@ -27,5 +27,6 @@ struct apfs_fs_context {
 };
 
 int apfs_init_fs_context(struct fs_context *fc);
+bool apfs_verify_block_csum(const void *block, size_t size);
 
 #endif /* _FS_APFS_APFS_H */
