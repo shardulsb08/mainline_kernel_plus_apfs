@@ -8,14 +8,14 @@
 
 #include <linux/fs.h>
 #include <linux/module.h>
-
 #include "apfs.h"
 
 static struct dentry *apfs_mount(struct file_system_type *fs_type, int flags,
 				 const char *dev_name, void *data)
 {
-	pr_warn_once("apfs: %s\n", APFS_STUB_MSG);
-	return ERR_PTR(-EOPNOTSUPP);
+	pr_warn_once("apfs: %s (source=%s)\n", APFS_STUB_MSG,
+		     dev_name ? dev_name : "<none>");
+	return ERR_PTR(-APFS_STUB_ERRNO);
 }
 
 static void apfs_kill_sb(struct super_block *sb)
