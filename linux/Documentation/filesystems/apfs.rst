@@ -45,13 +45,6 @@ avoiding premature feature claims.
 Next tiny step
 ==============
 
-Import the first real APFS source slices from the out-of-tree module into
-``fs/apfs/`` while preserving behavior parity and keeping each patch narrowly
-scoped for review.
-
-Current scaffold behavior
-=========================
-
-A minimal APFS in-tree stub now exists and registers filesystem type ``apfs``.
-Mount attempts intentionally fail with ``-EOPNOTSUPP`` and a warning message,
-so no APFS feature support is implied yet.
+Introduce a no-op APFS module stub under ``fs/apfs/`` (still marked non-user
+ready), so CI can compile a concrete APFS object while we incrementally import
+real functionality in follow-up patches.

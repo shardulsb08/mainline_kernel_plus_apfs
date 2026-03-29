@@ -7,8 +7,8 @@ config APFS_FS
 	  This entry reserves the in-tree integration point for APFS while we
 	  progressively move the out-of-tree driver into fs/apfs/ in small,
 	  reviewable steps.
-
+	
 	  The current option is intentionally marked BROKEN and does not provide
 	  mountable APFS support yet.
-
+	
 	  If unsure, say N.
