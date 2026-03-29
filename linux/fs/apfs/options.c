@@ -100,6 +100,10 @@ static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 	struct buffer_head *bh;
 	u32 magic;
 	u32 block_size;
+	u64 block_count;
+	u64 features;
+	u64 ro_compat;
+	u64 incompat;
 	struct apfs_nx_superblock *nxsb;
 
 	if (!sb_set_blocksize(sb, APFS_NX_DEFAULT_BLOCK_SIZE))
@@ -117,6 +121,10 @@ static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 	nxsb = (struct apfs_nx_superblock *)bh->b_data;
 	magic = le32_to_cpu(nxsb->nx_magic);
 	block_size = le32_to_cpu(nxsb->nx_block_size);
+	block_count = le64_to_cpu(nxsb->nx_block_count);
+	features = le64_to_cpu(nxsb->nx_features);
+	ro_compat = le64_to_cpu(nxsb->nx_readonly_compatible_features);
+	incompat = le64_to_cpu(nxsb->nx_incompatible_features);
 	brelse(bh);
 
 	if (magic != APFS_NX_MAGIC)
@@ -126,17 +134,33 @@ static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 	    !is_power_of_2(block_size))
 		return errorf(fc, "invalid APFS block size %u", block_size);
 
+	if (!block_count)
+		return errorf(fc, "invalid APFS container block count %llu", block_count);
+
+	if (features & ~APFS_NX_SUPPORTED_FEATURES_MASK)
+		return errorf(fc, "unsupported APFS features 0x%llx",
+			      features & ~APFS_NX_SUPPORTED_FEATURES_MASK);
+
+	if (incompat & ~APFS_NX_SUPPORTED_INCOMPAT_MASK)
+		return errorf(fc, "unsupported APFS incompatible features 0x%llx",
+			      incompat & ~APFS_NX_SUPPORTED_INCOMPAT_MASK);
+
+	if (ro_compat)
+		pr_warn_once("apfs: container uses ro-compatible features 0x%llx\n",
+			     ro_compat);
+
 	if (!sb_set_blocksize(sb, block_size))
 		return errorf(fc, "failed to set APFS block size %u", block_size);
 
 	sb->s_magic = magic;
 
-	pr_warn_once("apfs: %s (source=%s, vol=%u, readwrite=%u, cknodes=%u, snap=%s, tier2=%s)\n",
+	pr_warn_once("apfs: %s (source=%s, vol=%u, readwrite=%u, cknodes=%u, snap=%s, tier2=%s, ro_compat=0x%llx)\n",
 		     APFS_STUB_MSG,
 		     fc->source ? fc->source : "<none>",
 		     ctx->vol, ctx->readwrite, ctx->cknodes,
 		     ctx->snap ? ctx->snap : "<none>",
-		     ctx->tier2 ? ctx->tier2 : "<none>");
+		     ctx->tier2 ? ctx->tier2 : "<none>",
+		     ro_compat);
 
 	return -APFS_STUB_ERRNO;
 }
