@@ -8,10 +8,7 @@
 #define APFS_STUB_MSG "APFS support is not available in this kernel build"
 #define APFS_STUB_ERRNO EOPNOTSUPP
 
-#define APFS_NX_MAGIC 0x4253584E
 #define APFS_NX_DEFAULT_BLOCK_SIZE 4096
-#define APFS_NX_MAGIC_OFFSET 0x20
-#define APFS_NX_BLOCK_SIZE_OFFSET 0x24
 
 #define APFS_MIN_BLOCK_SIZE 512
 #define APFS_MAX_BLOCK_SIZE 65536

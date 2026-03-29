@@ -10,6 +10,7 @@
 #include <linux/slab.h>
 
 #include "apfs.h"
+#include "apfs_raw.h"
 
 enum apfs_param {
 	opt_vol,
@@ -99,6 +100,7 @@ static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 	struct buffer_head *bh;
 	u32 magic;
 	u32 block_size;
+	struct apfs_nx_superblock *nxsb;
 
 	if (!sb_set_blocksize(sb, APFS_NX_DEFAULT_BLOCK_SIZE))
 		return errorf(fc, "failed to set blocksize %u", APFS_NX_DEFAULT_BLOCK_SIZE);
@@ -107,9 +109,9 @@ static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 	if (!bh)
 		return errorf(fc, "failed to read container superblock");
 
-	magic = le32_to_cpup((__le32 *)(bh->b_data + APFS_NX_MAGIC_OFFSET));
-
-	block_size = le32_to_cpup((__le32 *)(bh->b_data + APFS_NX_BLOCK_SIZE_OFFSET));
+	nxsb = (struct apfs_nx_superblock *)bh->b_data;
+	magic = le32_to_cpu(nxsb->nx_magic);
+	block_size = le32_to_cpu(nxsb->nx_block_size);
 	brelse(bh);
 
 	if (magic != APFS_NX_MAGIC)
