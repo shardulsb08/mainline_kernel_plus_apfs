@@ -4,4 +4,4 @@
 #
 
 obj-$(CONFIG_APFS_FS) += apfs.o
-apfs-y := super.o
+apfs-y := options.o super.o
