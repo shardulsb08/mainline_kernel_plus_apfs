@@ -98,6 +98,7 @@ static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 	struct apfs_fs_context *ctx = fc->fs_private;
 	struct buffer_head *bh;
 	u32 magic;
+	u32 block_size;
 
 	if (!sb_set_blocksize(sb, APFS_NX_DEFAULT_BLOCK_SIZE))
 		return errorf(fc, "failed to set blocksize %u", APFS_NX_DEFAULT_BLOCK_SIZE);
@@ -107,10 +108,19 @@ static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 		return errorf(fc, "failed to read container superblock");
 
 	magic = le32_to_cpup((__le32 *)(bh->b_data + APFS_NX_MAGIC_OFFSET));
+
+	block_size = le32_to_cpup((__le32 *)(bh->b_data + APFS_NX_BLOCK_SIZE_OFFSET));
 	brelse(bh);
 
 	if (magic != APFS_NX_MAGIC)
 		return errorf(fc, "not an APFS container (magic=0x%08x)", magic);
+
+	if (block_size < APFS_MIN_BLOCK_SIZE || block_size > APFS_MAX_BLOCK_SIZE ||
+	    !is_power_of_2(block_size))
+		return errorf(fc, "invalid APFS block size %u", block_size);
+
+	if (!sb_set_blocksize(sb, block_size))
+		return errorf(fc, "failed to set APFS block size %u", block_size);
 
 	sb->s_magic = magic;
 
