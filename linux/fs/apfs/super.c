@@ -8,7 +8,6 @@
 
 #include <linux/fs.h>
 #include <linux/module.h>
-#include <linux/pseudo_fs.h>
 
 #define APFS_STUB_MSG "APFS support is not available in this kernel build"
 
