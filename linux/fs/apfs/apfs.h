@@ -11,6 +11,9 @@
 struct apfs_fs_context {
 	bool readwrite;
 	bool cknodes;
+	bool vol_set;
+	bool uid_set;
+	bool gid_set;
 	u32 vol;
 	u32 uid;
 	u32 gid;
