@@ -8,8 +8,7 @@
 
 #include <linux/fs.h>
 #include <linux/module.h>
-
-#define APFS_STUB_MSG "APFS support is not available in this kernel build"
+#include "apfs.h"
 
 static struct dentry *apfs_mount(struct file_system_type *fs_type, int flags,
 				 const char *dev_name, void *data)
