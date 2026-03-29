@@ -8,6 +8,10 @@
 #define APFS_STUB_MSG "APFS support is not available in this kernel build"
 #define APFS_STUB_ERRNO EOPNOTSUPP
 
+#define APFS_NX_MAGIC 0x4253584E
+#define APFS_NX_DEFAULT_BLOCK_SIZE 4096
+#define APFS_NX_MAGIC_OFFSET 0x20
+
 struct apfs_fs_context {
 	bool readwrite;
 	bool cknodes;

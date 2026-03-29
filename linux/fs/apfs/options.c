@@ -3,6 +3,7 @@
  * Mount parameter and fs_context scaffolding for APFS.
  */
 
+#include <linux/buffer_head.h>
 #include <linux/fs.h>
 #include <linux/fs_context.h>
 #include <linux/fs_parser.h>
@@ -92,14 +93,26 @@ static int apfs_validate_options(struct fs_context *fc)
 	return 0;
 }
 
-static int apfs_get_tree(struct fs_context *fc)
+static int apfs_fill_super(struct super_block *sb, struct fs_context *fc)
 {
 	struct apfs_fs_context *ctx = fc->fs_private;
-	int err;
+	struct buffer_head *bh;
+	u32 magic;
 
-	err = apfs_validate_options(fc);
-	if (err)
-		return err;
+	if (!sb_set_blocksize(sb, APFS_NX_DEFAULT_BLOCK_SIZE))
+		return errorf(fc, "failed to set blocksize %u", APFS_NX_DEFAULT_BLOCK_SIZE);
+
+	bh = sb_bread(sb, 0);
+	if (!bh)
+		return errorf(fc, "failed to read container superblock");
+
+	magic = le32_to_cpup((__le32 *)(bh->b_data + APFS_NX_MAGIC_OFFSET));
+	brelse(bh);
+
+	if (magic != APFS_NX_MAGIC)
+		return errorf(fc, "not an APFS container (magic=0x%08x)", magic);
+
+	sb->s_magic = magic;
 
 	pr_warn_once("apfs: %s (source=%s, vol=%u, readwrite=%u, cknodes=%u, snap=%s, tier2=%s)\n",
 		     APFS_STUB_MSG,
@@ -107,7 +120,19 @@ static int apfs_get_tree(struct fs_context *fc)
 		     ctx->vol, ctx->readwrite, ctx->cknodes,
 		     ctx->snap ? ctx->snap : "<none>",
 		     ctx->tier2 ? ctx->tier2 : "<none>");
+
 	return -APFS_STUB_ERRNO;
+}
+
+static int apfs_get_tree(struct fs_context *fc)
+{
+	int err;
+
+	err = apfs_validate_options(fc);
+	if (err)
+		return err;
+
+	return get_tree_bdev(fc, apfs_fill_super);
 }
 
 static void apfs_free_fc(struct fs_context *fc)
